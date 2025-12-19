@@ -1,4 +1,4 @@
-/* ================= BASIC SCREEN FLOW ================= */
+/* ================= SCREEN FLOW ================= */
 
 const screens = document.querySelectorAll(".screen");
 
@@ -35,50 +35,52 @@ let femaleVoice = null;
 speechSynthesis.onvoiceschanged = () => {
   const voices = speechSynthesis.getVoices();
 
+  // 🔥 MOST NATURAL voices (browser available)
   maleVoice =
-    voices.find(v => v.name.toLowerCase().includes("male")) ||
-    voices.find(v => v.lang === "en-US") ||
+    voices.find(v => v.lang === "en-US" && !v.name.toLowerCase().includes("female")) ||
     voices[0];
 
   femaleVoice =
-    voices.find(v => v.name.toLowerCase().includes("female")) ||
-    voices.find(v => v.lang === "en-GB") ||
+    voices.find(v => v.lang === "en-US" && v.name.toLowerCase().includes("female")) ||
     voices[1];
 };
 
-/* ================= UTILITIES ================= */
+/* ================= TEXT CLEANER ================= */
 
-// remove emojis for voice
+// ❌ remove emojis, commas, dots, symbols
 function cleanForVoice(text) {
   return text
     .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+    .replace(/[.,!?…]/g, "")
     .trim();
 }
 
-// speak SINGLE word
+/* ================= SPEAK WORD (SYNCED) ================= */
+
 function speakWord(word, gender) {
   const clean = cleanForVoice(word);
-  if (!clean || clean === ".....") return;
+  if (!clean) return;
 
-  speechSynthesis.cancel();
+  speechSynthesis.cancel(); // stop overlap
 
   const utter = new SpeechSynthesisUtterance(clean);
 
   if (gender === "male") {
     utter.voice = maleVoice;
-    utter.pitch = 0.85;
-    utter.rate = 0.9;
+    utter.pitch = 0.82;   // breathy male
+    utter.rate = 0.85;    // slow & natural
   } else {
     utter.voice = femaleVoice;
-    utter.pitch = 1.25;
-    utter.rate = 0.95;
+    utter.pitch = 1.15;   // soft excited
+    utter.rate = 0.9;
   }
 
-  utter.volume = 1;
+  utter.volume = 0.95;
   speechSynthesis.speak(utter);
 }
 
-// typing + word-by-word voice
+/* ================= TYPE + VOICE (WORD BY WORD) ================= */
+
 function typeText(el, text, gender) {
   el.innerHTML = "";
   el.style.opacity = 1;
@@ -93,44 +95,46 @@ function typeText(el, text, gender) {
         return;
       }
 
-      el.innerHTML += (i === 0 ? "" : " ") + words[i];
-      speakWord(words[i], gender);
+      const word = words[i];
+      el.innerHTML += (i === 0 ? "" : " ") + word;
+
+      // 🔊 speak SAME TIME as typing
+      speakWord(word, gender);
 
       i++;
-      setTimeout(nextWord, 260);
+      setTimeout(nextWord, 320); // 🔥 PERFECT BALANCED SPEED
     }
 
     nextWord();
   });
 }
 
-// fade out previous message
 function fadeOut(el) {
   el.style.opacity = 0;
 }
 
-/* ================= CONVERSATION DATA ================= */
+/* ================= CONVERSATION ================= */
 
 const conversation = [
-  { who: "z1", text: "Hey , pretty 👋🏻" },
-  { who: "z2", text: "Hmm." },
+  { who: "z1", text: "Hey pretty 👋🏻" },
+  { who: "z2", text: "Hmm" },
 
   { who: "z1", text: "Happy Birthday my girl 👸🏻🐒💞" },
-  { who: "z2", text: "huh , thank you u 🫶🏻💘☺️" },
+  { who: "z2", text: "huh thank you u 🫶🏻💘☺️" },
 
   { who: "z1", text: "hmmmm 😊🙃" },
 
-  { who: "z2", text: "hmm , will you stay with untill .... ?" },
+  { who: "z2", text: "hmm will you stay with untill" },
 
-  { who: "z1", text: "untill ..?" },
+  { who: "z1", text: "untill" },
 
-  { who: "z1", text: "listen baby girl , im not going anywhere by leaving you" },
+  { who: "z1", text: "listen baby girl im not going anywhere by leaving you" },
 
-  { who: "z1", text: "I'll stay with you forever" },
+  { who: "z1", text: "Ill stay with you forever" },
 
-  { who: "z2", text: "really ?" },
+  { who: "z2", text: "really" },
 
-  { who: "z1", text: "Yeah , its my promise. chitti 👸🏻🫳🏻" },
+  { who: "z1", text: "Yeah its my promise chitti 👸🏻🫳🏻" },
 
   { who: "z2", text: "....." },
 
@@ -153,9 +157,7 @@ async function startConversation() {
     const el = msg.who === "z1" ? z1 : z2;
     const gender = msg.who === "z1" ? "male" : "female";
 
-    if (lastEl && lastEl !== el) {
-      fadeOut(lastEl);
-    }
+    if (lastEl && lastEl !== el) fadeOut(lastEl);
 
     await typeText(el, msg.text, gender);
     lastEl = el;
