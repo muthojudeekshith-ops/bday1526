@@ -64,12 +64,21 @@ button {
 
 /* ---------- Interface 3 ---------- */
 #warning {
-  font-size: 24px;
+  font-size: 22px;
+  padding: 20px;
   background: black;
   color: white;
-  padding: 20px;
+  border: none;
   cursor: pointer;
 }
+
+.image-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 
 /* ---------- Interface 4 ---------- */
 .image-container {
