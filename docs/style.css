@@ -97,13 +97,16 @@ button {
 }
 
 /* Positions */
+
+/* MALE – Boy side */
 .z1 {
-  top: 40%;
-  left: 6%;
+  top: 45%;
+  right: 6%;
 }
 
+/* FEMALE – Girl side */
 .z2 {
-  top: 40%;
-  right: 6%;
+  top: 45%;
+  left: 6%;
 }
 
