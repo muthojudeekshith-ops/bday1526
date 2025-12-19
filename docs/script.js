@@ -182,6 +182,6 @@ async function startConversation() {
     await typeText(el, msg.text, gender);
     lastEl = el;
 
-    await new Promise(r => setTimeout(r, 450));
+    await new Promise(r => setTimeout(r, 1300));
   }
 }
