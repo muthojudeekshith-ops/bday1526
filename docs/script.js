@@ -89,12 +89,12 @@ function speakWord(word, gender) {
 
   if (gender === "male") {
     utter.voice = maleVoice;
-    utter.pitch = 0.82;   // breathy male
-    utter.rate = 0.82;    // slower = realistic
+    utter.pitch = 0.78;   // breathy male
+    utter.rate = 0.75;    // slower = realistic
   } else {
     utter.voice = femaleVoice;
-    utter.pitch = 1.12;   // soft excited female
-    utter.rate = 0.88;
+    utter.pitch = 1.10;   // soft excited female
+    utter.rate = 0.78;
   }
 
   utter.volume = 0.95;
@@ -136,17 +136,17 @@ function fadeOut(el) {
 /* ================= CONVERSATION ================= */
 
 const conversation = [
-  { who: "z1", text: "Hey pretty 👋🏻" },
+  { who: "z1", text: "Hey  pretty 👋🏻" },
   { who: "z2", text: "Hmm" },
 
-  { who: "z1", text: "Happy Birthday my girl 👸🏻🐒💞" },
-  { who: "z2", text: "huh thank you u 🫶🏻💘☺️" },
+  { who: "z1", text: "Happy  Birthday my girl 👸🏻🐒💞" },
+  { who: "z2", text: "huh thank you  🫶🏻💘☺️" },
 
   { who: "z1", text: "hmmmm 😊🙃" },
 
-  { who: "z2", text: "hmm will you stay with untill" },
+  { who: "z2", text: "hmm  will you stay with untill" },
 
-  { who: "z1", text: "untill" },
+  { who: "z1", text: "untill  " },
 
   { who: "z1", text: "listen baby girl im not going anywhere by leaving you" },
 
@@ -182,6 +182,6 @@ async function startConversation() {
     await typeText(el, msg.text, gender);
     lastEl = el;
 
-    await new Promise(r => setTimeout(r, 900));
+    await new Promise(r => setTimeout(r, 450));
   }
 }
