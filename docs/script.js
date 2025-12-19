@@ -22,12 +22,13 @@ function checkPassword() {
   }
 }
 
-document.getElementById("warning").onclick = () => {
+document.getElementById("warning").addEventListener("click", () => {
   setTimeout(() => {
     showScreen("screen4");
     startConversation();
   }, 3000);
-};
+});
+
 
 /* ---------- UTILITIES ---------- */
 
