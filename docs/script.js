@@ -27,7 +27,7 @@ document.getElementById("warning").onclick = () => {
   }, 3000);
 };
 
-/* ================= VOICE SETUP ================= */
+/* ================= VOICES ================= */
 
 let maleVoice = null;
 let femaleVoice = null;
@@ -35,19 +35,22 @@ let femaleVoice = null;
 speechSynthesis.onvoiceschanged = () => {
   const voices = speechSynthesis.getVoices();
 
-  // 🔥 MOST NATURAL voices (browser available)
   maleVoice =
-    voices.find(v => v.lang === "en-US" && !v.name.toLowerCase().includes("female")) ||
-    voices[0];
+    voices.find(v =>
+      v.lang.startsWith("en") &&
+      !v.name.toLowerCase().includes("female")
+    ) || voices[0];
 
   femaleVoice =
-    voices.find(v => v.lang === "en-US" && v.name.toLowerCase().includes("female")) ||
-    voices[1];
+    voices.find(v =>
+      v.lang.startsWith("en") &&
+      v.name.toLowerCase().includes("female")
+    ) || voices[1];
 };
 
-/* ================= TEXT CLEANER ================= */
+/* ================= TEXT CLEAN + STYLE PRONUNCIATION ================= */
 
-// ❌ remove emojis, commas, dots, symbols
+// emojis & symbols remove
 function cleanForVoice(text) {
   return text
     .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
@@ -55,31 +58,50 @@ function cleanForVoice(text) {
     .trim();
 }
 
-/* ================= SPEAK WORD (SYNCED) ================= */
+// 🔥 HUMAN STYLE "hmm" FIX
+function humanizeWord(word) {
+  const w = word.toLowerCase();
+
+  if (/^h+m+$/.test(w)) {
+    // hmm / hmmm / hmmmmm
+    return "mmh";
+  }
+
+  if (/^m+h+$/.test(w)) {
+    return "mm";
+  }
+
+  if (w === "hmm") return "mmh";
+  if (w === "huh") return "uhh";
+
+  return word;
+}
+
+/* ================= SPEAK WORD ================= */
 
 function speakWord(word, gender) {
-  const clean = cleanForVoice(word);
+  let clean = cleanForVoice(word);
   if (!clean) return;
 
-  speechSynthesis.cancel(); // stop overlap
+  clean = humanizeWord(clean);
 
   const utter = new SpeechSynthesisUtterance(clean);
 
   if (gender === "male") {
     utter.voice = maleVoice;
     utter.pitch = 0.82;   // breathy male
-    utter.rate = 0.85;    // slow & natural
+    utter.rate = 0.82;    // slower = realistic
   } else {
     utter.voice = femaleVoice;
-    utter.pitch = 1.15;   // soft excited
-    utter.rate = 0.9;
+    utter.pitch = 1.12;   // soft excited female
+    utter.rate = 0.88;
   }
 
   utter.volume = 0.95;
   speechSynthesis.speak(utter);
 }
 
-/* ================= TYPE + VOICE (WORD BY WORD) ================= */
+/* ================= TYPE + VOICE (SYNC) ================= */
 
 function typeText(el, text, gender) {
   el.innerHTML = "";
@@ -98,13 +120,11 @@ function typeText(el, text, gender) {
       const word = words[i];
       el.innerHTML += (i === 0 ? "" : " ") + word;
 
-      // 🔊 speak SAME TIME as typing
       speakWord(word, gender);
 
       i++;
-      setTimeout(nextWord, 320); // 🔥 PERFECT BALANCED SPEED
+      setTimeout(nextWord, 340); // ⭐ BEST BALANCED SPEED
     }
-
     nextWord();
   });
 }
@@ -145,7 +165,7 @@ const conversation = [
   { who: "z1", text: "ONCE AGAIN HAPPY BIRTHDAY MY GIRL 💞👸🏻" }
 ];
 
-/* ================= SEQUENTIAL ENGINE ================= */
+/* ================= ENGINE ================= */
 
 async function startConversation() {
   const z1 = document.getElementById("z1");
