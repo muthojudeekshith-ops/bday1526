@@ -145,3 +145,6 @@ async function startConversation() {
     await new Promise(r => setTimeout(r, 1200));
   }
 }
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("passBtn").addEventListener("click", checkPassword);
+});
