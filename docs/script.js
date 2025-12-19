@@ -124,7 +124,8 @@ const conversation = [
 /* ---------- SEQUENTIAL ENGINE ---------- */
 
 async function startConversation() {
-  const z1 = document.getElementById("z1");
+ console.log("Conversation started");
+ const z1 = document.getElementById("z1");
   const z2 = document.getElementById("z2");
 
   let lastEl = null;
