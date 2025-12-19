@@ -125,8 +125,9 @@ const conversation = [
 /* ---------- SEQUENTIAL ENGINE ---------- */
 
 async function startConversation() {
- console.log("Conversation started");
- const z1 = document.getElementById("z1");
+  console.log("Conversation started");
+
+  const z1 = document.getElementById("z1");
   const z2 = document.getElementById("z2");
 
   let lastEl = null;
@@ -147,6 +148,19 @@ async function startConversation() {
     await new Promise(r => setTimeout(r, 1200));
   }
 }
+
+/* ✅ THIS MUST BE LAST */
 document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("passBtn").addEventListener("click", checkPassword);
+
+  document.getElementById("passBtn")
+    .addEventListener("click", checkPassword);
+
+  document.getElementById("warning")
+    .addEventListener("click", () => {
+      setTimeout(() => {
+        showScreen("screen4");
+        startConversation();
+      }, 3000);
+    });
+
 });
