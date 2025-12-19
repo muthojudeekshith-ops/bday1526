@@ -1,4 +1,4 @@
-console.log("JS LOADED");
+/* ================= BASIC SCREEN FLOW ================= */
 
 const screens = document.querySelectorAll(".screen");
 
@@ -7,121 +7,159 @@ function showScreen(id) {
   document.getElementById(id).classList.add("active");
 }
 
-/* -------- Screen flow -------- */
-
-document.getElementById("enterBtn").addEventListener("click", () => {
+document.getElementById("enterBtn").onclick = () => {
   showScreen("screen2");
-});
+};
 
-function checkPassword() {
+document.getElementById("passBtn").onclick = () => {
   const pwd = document.getElementById("password").value;
   if (pwd === "c5d9") {
     showScreen("screen3");
   } else {
     alert("Wrong Password ❌");
   }
-}
+};
 
-/* -------- Utilities -------- */
+document.getElementById("warning").onclick = () => {
+  setTimeout(() => {
+    showScreen("screen4");
+    startConversation();
+  }, 3000);
+};
 
+/* ================= VOICE SETUP ================= */
+
+let maleVoice = null;
+let femaleVoice = null;
+
+speechSynthesis.onvoiceschanged = () => {
+  const voices = speechSynthesis.getVoices();
+
+  maleVoice =
+    voices.find(v => v.name.toLowerCase().includes("male")) ||
+    voices.find(v => v.lang === "en-US") ||
+    voices[0];
+
+  femaleVoice =
+    voices.find(v => v.name.toLowerCase().includes("female")) ||
+    voices.find(v => v.lang === "en-GB") ||
+    voices[1];
+};
+
+/* ================= UTILITIES ================= */
+
+// remove emojis for voice
 function cleanForVoice(text) {
-  return text.replace(
-    /([\u2700-\u27BF]|[\uD83C-\uDBFF\uDC00-\uDFFF])/g,
-    ""
-  );
+  return text
+    .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
+    .trim();
 }
 
-function typeText(el, text, speed = 55) {
+// speak SINGLE word
+function speakWord(word, gender) {
+  const clean = cleanForVoice(word);
+  if (!clean || clean === ".....") return;
+
+  speechSynthesis.cancel();
+
+  const utter = new SpeechSynthesisUtterance(clean);
+
+  if (gender === "male") {
+    utter.voice = maleVoice;
+    utter.pitch = 0.85;
+    utter.rate = 0.9;
+  } else {
+    utter.voice = femaleVoice;
+    utter.pitch = 1.25;
+    utter.rate = 0.95;
+  }
+
+  utter.volume = 1;
+  speechSynthesis.speak(utter);
+}
+
+// typing + word-by-word voice
+function typeText(el, text, gender) {
   el.innerHTML = "";
   el.style.opacity = 1;
+
+  const words = text.split(" ");
   let i = 0;
 
   return new Promise(resolve => {
-    const interval = setInterval(() => {
-      el.innerHTML += text.charAt(i);
-      i++;
-      if (i >= text.length) {
-        clearInterval(interval);
+    function nextWord() {
+      if (i >= words.length) {
         resolve();
+        return;
       }
-    }, speed);
+
+      el.innerHTML += (i === 0 ? "" : " ") + words[i];
+      speakWord(words[i], gender);
+
+      i++;
+      setTimeout(nextWord, 260);
+    }
+
+    nextWord();
   });
 }
 
+// fade out previous message
 function fadeOut(el) {
   el.style.opacity = 0;
 }
 
-function speak(text, gender, mood = {}) {
-  if (!text || text.trim() === ".....") return;
-
-  const utter = new SpeechSynthesisUtterance(cleanForVoice(text));
-  const voices = speechSynthesis.getVoices();
-
-  utter.voice =
-    gender === "male"
-      ? voices[0]
-      : voices[1] || voices[0];
-
-  utter.pitch = mood.pitch ?? (gender === "male" ? 0.85 : 1.25);
-  utter.rate = mood.rate ?? 0.95;
-  utter.volume = mood.volume ?? 1;
-
-  speechSynthesis.speak(utter);
-}
-
-/* -------- Conversation -------- */
+/* ================= CONVERSATION DATA ================= */
 
 const conversation = [
-  { who:"z1", text:"Hey , pretty 👋🏻" },
-  { who:"z2", text:"Hmm." },
-  { who:"z1", text:"Happy Birthday my girl 👸🏻🐒💞" },
-  { who:"z2", text:"huh , thank you u 🫶🏻💘☺️" },
-  { who:"z1", text:"hmmmm 😊🙃" },
-  { who:"z2", text:"hmm , will you stay with untill .... ?" },
-  { who:"z1", text:"untill ..?" },
-  { who:"z1", text:"listen baby girl , im not going anywhere by leaving you" },
-  { who:"z1", text:"I'll stay with you forever" },
-  { who:"z2", text:"really ?" },
-  { who:"z1", text:"Yeah , its my promise. chitti 👸🏻🫳🏻" },
-  { who:"z2", text:"....." },
-  { who:"z1", text:"I LOVE YOU CHITTI 💓🌹" },
-  { who:"z2", text:"I LOVE YOU TOO 💕" },
-  { who:"z1", text:"ONCE AGAIN HAPPY BIRTHDAY MY GIRL 💞👸🏻" }
+  { who: "z1", text: "Hey , pretty 👋🏻" },
+  { who: "z2", text: "Hmm." },
+
+  { who: "z1", text: "Happy Birthday my girl 👸🏻🐒💞" },
+  { who: "z2", text: "huh , thank you u 🫶🏻💘☺️" },
+
+  { who: "z1", text: "hmmmm 😊🙃" },
+
+  { who: "z2", text: "hmm , will you stay with untill .... ?" },
+
+  { who: "z1", text: "untill ..?" },
+
+  { who: "z1", text: "listen baby girl , im not going anywhere by leaving you" },
+
+  { who: "z1", text: "I'll stay with you forever" },
+
+  { who: "z2", text: "really ?" },
+
+  { who: "z1", text: "Yeah , its my promise. chitti 👸🏻🫳🏻" },
+
+  { who: "z2", text: "....." },
+
+  { who: "z1", text: "I LOVE YOU CHITTI 💓🌹" },
+
+  { who: "z2", text: "I LOVE YOU TOO 💕" },
+
+  { who: "z1", text: "ONCE AGAIN HAPPY BIRTHDAY MY GIRL 💞👸🏻" }
 ];
+
+/* ================= SEQUENTIAL ENGINE ================= */
 
 async function startConversation() {
   const z1 = document.getElementById("z1");
   const z2 = document.getElementById("z2");
-  let last = null;
+
+  let lastEl = null;
 
   for (const msg of conversation) {
     const el = msg.who === "z1" ? z1 : z2;
     const gender = msg.who === "z1" ? "male" : "female";
 
-    if (last && last !== el) fadeOut(last);
+    if (lastEl && lastEl !== el) {
+      fadeOut(lastEl);
+    }
 
-    await typeText(el, msg.text);
-    speak(msg.text, gender);
+    await typeText(el, msg.text, gender);
+    lastEl = el;
 
-    last = el;
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 900));
   }
 }
-
-/* -------- DOM Ready -------- */
-
-document.addEventListener("DOMContentLoaded", () => {
-
-  document.getElementById("passBtn")
-    .addEventListener("click", checkPassword);
-
-  document.getElementById("warning")
-    .addEventListener("click", () => {
-      setTimeout(() => {
-        showScreen("screen4");
-        startConversation();
-      }, 3000);
-    });
-
-});
