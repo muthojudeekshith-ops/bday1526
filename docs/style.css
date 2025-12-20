@@ -98,6 +98,22 @@ button {
   top: 60%;
   right: 6%;
 }
+#replayBtn {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  padding: 8px 14px;
+  font-size: 14px;
+  border: none;
+  border-radius: 20px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  cursor: pointer;
+}
+
+#replayBtn:hover {
+  background: rgba(0,0,0,0.8);
+}
 
 .z2 {
   top: 45%;
