@@ -27,73 +27,56 @@ document.getElementById("warning").onclick = () => {
   }, 3000);
 };
 
-/* ================= VOICES ================= */
+/* ================= VOICE SETUP (MOBILE SAFE) ================= */
 
 let maleVoice = null;
 let femaleVoice = null;
 
-speechSynthesis.onvoiceschanged = () => {
+function loadVoices() {
   const voices = speechSynthesis.getVoices();
 
   maleVoice =
     voices.find(v =>
       v.lang.startsWith("en") &&
-      !v.name.toLowerCase().includes("female")
+      (v.name.toLowerCase().includes("male") ||
+       v.name.toLowerCase().includes("google"))
     ) || voices[0];
 
   femaleVoice =
     voices.find(v =>
       v.lang.startsWith("en") &&
-      v.name.toLowerCase().includes("female")
-    ) || voices[1];
-};
+      (v.name.toLowerCase().includes("female") ||
+       v.name.toLowerCase().includes("google"))
+    ) || voices[1] || voices[0];
+}
 
-/* ================= TEXT CLEAN + STYLE PRONUNCIATION ================= */
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
 
-// emojis & symbols remove
+/* ================= TEXT CLEANER ================= */
+
 function cleanForVoice(text) {
   return text
     .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
-    .replace(/[.,!?…]/g, "")
+    .replace(/[^\w\s]/g, "")
     .trim();
-}
-
-// 🔥 HUMAN STYLE "hmm" FIX
-function humanizeWord(word) {
-  const w = word.toLowerCase();
-
-  if (/^h+m+$/.test(w)) {
-    // hmm / hmmm / hmmmmm
-    return "mmh";
-  }
-
-  if (/^m+h+$/.test(w)) {
-    return "mm";
-  }
-
-  if (w === "hmm") return "mmh";
-  if (w === "huh") return "uhh";
-
-  return word;
 }
 
 /* ================= SPEAK WORD ================= */
 
 function speakWord(word, gender) {
-  let clean = cleanForVoice(word);
+  const clean = cleanForVoice(word);
   if (!clean) return;
-
-  clean = humanizeWord(clean);
 
   const utter = new SpeechSynthesisUtterance(clean);
 
   if (gender === "male") {
     utter.voice = maleVoice;
-    utter.pitch = 0.78;   // breathy male
-    utter.rate = 0.75;    // slower = realistic
+    utter.pitch = 0.78;
+    utter.rate = 0.75;
   } else {
     utter.voice = femaleVoice;
-    utter.pitch = 1.10;   // soft excited female
+    utter.pitch = 1.1;
     utter.rate = 0.78;
   }
 
@@ -101,31 +84,37 @@ function speakWord(word, gender) {
   speechSynthesis.speak(utter);
 }
 
-/* ================= TYPE + VOICE (SYNC) ================= */
+/* ================= TYPE + VOICE WITH PAUSES ================= */
 
 function typeText(el, text, gender) {
   el.innerHTML = "";
   el.style.opacity = 1;
 
-  const words = text.split(" ");
+  const tokens = text.split(" ");
   let i = 0;
 
   return new Promise(resolve => {
-    function nextWord() {
-      if (i >= words.length) {
+    function nextToken() {
+      if (i >= tokens.length) {
         resolve();
         return;
       }
 
-      const word = words[i];
-      el.innerHTML += (i === 0 ? "" : " ") + word;
+      let token = tokens[i];
+      el.innerHTML += (i === 0 ? "" : " ") + token;
 
-      speakWord(word, gender);
+      speakWord(token, gender);
+
+      let delay = 450; // base slow speed
+
+      if (token.includes(",")) delay = 1000; // comma pause
+      if (token.includes("...") || token.includes("..")) delay = 2000; // dots pause
 
       i++;
-      setTimeout(nextWord, 340); // ⭐ BEST BALANCED SPEED
+      setTimeout(nextToken, delay);
     }
-    nextWord();
+
+    nextToken();
   });
 }
 
@@ -136,25 +125,25 @@ function fadeOut(el) {
 /* ================= CONVERSATION ================= */
 
 const conversation = [
-  { who: "z1", text: "Hey  pretty 👋🏻" },
+  { who: "z1", text: "Hey, pretty 👋🏻" },
   { who: "z2", text: "Hmm" },
 
-  { who: "z1", text: "Happy  Birthday my girl 👸🏻🐒💞" },
-  { who: "z2", text: "huh thank you  🫶🏻💘☺️" },
+  { who: "z1", text: "Happy Birthday, my girl 👸🏻🐒💞" },
+  { who: "z2", text: "huh, thank you u 🫶🏻💘☺️" },
 
-  { who: "z1", text: "hmmmm 😊🙃" },
+  { who: "z1", text: "hmmmm" },
 
-  { who: "z2", text: "hmm  will you stay with untill" },
+  { who: "z2", text: "hmm, will you stay with untill ... ?" },
 
-  { who: "z1", text: "untill  " },
+  { who: "z1", text: "untill ..?" },
 
-  { who: "z1", text: "listen baby girl im not going anywhere by leaving you" },
+  { who: "z1", text: "listen baby girl, im not going anywhere by leaving you" },
 
   { who: "z1", text: "Ill stay with you forever" },
 
-  { who: "z2", text: "really" },
+  { who: "z2", text: "really ?" },
 
-  { who: "z1", text: "Yeah its my promise chitti 👸🏻🫳🏻" },
+  { who: "z1", text: "Yeah, its my promise chitti 👸🏻🫳🏻" },
 
   { who: "z2", text: "....." },
 
@@ -162,10 +151,10 @@ const conversation = [
 
   { who: "z2", text: "I LOVE YOU TOO 💕" },
 
-  { who: "z1", text: "ONCE AGAIN HAPPY BIRTHDAY MY GIRL 💞👸🏻" }
+  { who: "z1", text: "ONCE AGAIN, HAPPY BIRTHDAY MY GIRL 💞👸🏻" }
 ];
 
-/* ================= ENGINE ================= */
+/* ================= SEQUENTIAL ENGINE ================= */
 
 async function startConversation() {
   const z1 = document.getElementById("z1");
@@ -184,4 +173,4 @@ async function startConversation() {
 
     await new Promise(r => setTimeout(r, 1300));
   }
-}
+    }
