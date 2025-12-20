@@ -45,18 +45,18 @@ document.addEventListener("DOMContentLoaded", () => {
     { who:"z2", audio:"audio/z2/3.mp3", text:"hmm, Will you stay with me, until.." },
 
     { who:"z1", audio:"audio/z1/4.mp3", text:"Until ..? 😏" },
-    { who:"z1", audio:"audio/z1/5.mp3", text:"Listen baby girl , I am not going anywhere by leaving you" },
+    { who:"z1", audio:"audio/z1/5.mp3", text:"Listen baby girl , I am not going anywhere by leaving you 🔐" },
     { who:"z1", audio:"audio/z1/6.mp3", text:"I'll stay withh you forever 💯" },
 
     { who:"z2", audio:"audio/z2/4.mp3", text:"Really .. ?" },
 
-    { who:"z1", audio:"audio/z1/7.mp3", text:"Yes it is my promise chitti 👸🏻🫳🏻" },
-    { who:"z2", audio:"audio/z2/5.mp3", text:"....." },
+    { who:"z1", audio:"audio/z1/7.mp3", text:"Yeahh,  it is my promise chitti 👸🏻🫳🏻" },
+    { who:"z2", audio:"audio/z2/5.mp3", text:"..☺️😘🙃..." },
 
     { who:"z1", audio:"audio/z1/8.mp3", text:"I love you chitti 💓🌹" },
     { who:"z2", audio:"audio/z2/6.mp3", text:"I love you too 💕" },
 
-    { who:"z1", audio:"audio/z1/9.mp3", text:"Once again happy birthday my girl 💞👸🏻" }
+    { who:"z1", audio:"audio/z1/9.mp3", text:"Once again , happy birthday my girl 💞👸🏻" }
   ];
 
   /* ================= TYPE SYNC WITH AUDIO ================= */
