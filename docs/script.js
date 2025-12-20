@@ -109,6 +109,6 @@ async function startConversation() {
     await typeWithAudio(el, msg.text, msg.audio);
     lastEl = el;
 
-    await new Promise(r => setTimeout(r, 1200));
+    await new Promise(r => setTimeout(r, 1000));
   }
 }
