@@ -9,12 +9,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById(id).classList.add("active");
   }
 
-  // Interface 1 → 2
   document.getElementById("enterBtn").addEventListener("click", () => {
     showScreen("screen2");
   });
 
-  // Interface 2 → 3
   document.getElementById("passBtn").addEventListener("click", () => {
     const pwd = document.getElementById("password").value;
     if (pwd === "c5d9") {
@@ -24,13 +22,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Interface 3 → 4
   document.getElementById("warning").addEventListener("click", () => {
     setTimeout(() => {
       showScreen("screen4");
       startConversation();
     }, 3000);
   });
+
+  /* ================= REPLAY CLICK SOUND ================= */
+
+  const replayClickSound = new Audio("audio/click.mp3"); 
+  // 👉 add small click sound file here
 
   /* ================= CONVERSATION DATA ================= */
 
@@ -45,18 +47,18 @@ document.addEventListener("DOMContentLoaded", () => {
     { who:"z2", audio:"audio/z2/3.mp3", text:"hmm, Will you stay with me, until.." },
 
     { who:"z1", audio:"audio/z1/4.mp3", text:"Until ..? 😏" },
-    { who:"z1", audio:"audio/z1/5.mp3", text:"Listen baby girl , I am not going anywhere by leaving you 🔐" },
+    { who:"z1", audio:"audio/z1/5.mp3", text:"Listen baby girl , I am not going anywhere by leaving you" },
     { who:"z1", audio:"audio/z1/6.mp3", text:"I'll stay withh you forever 💯" },
 
     { who:"z2", audio:"audio/z2/4.mp3", text:"Really .. ?" },
 
-    { who:"z1", audio:"audio/z1/7.mp3", text:"Yeahh,  it is my promise chitti 👸🏻🫳🏻" },
-    { who:"z2", audio:"audio/z2/5.mp3", text:"..☺️😘🙃..." },
+    { who:"z1", audio:"audio/z1/7.mp3", text:"Yes it is my promise chitti 👸🏻🫳🏻" },
+    { who:"z2", audio:"audio/z2/5.mp3", text:"....." },
 
     { who:"z1", audio:"audio/z1/8.mp3", text:"I love you chitti 💓🌹" },
     { who:"z2", audio:"audio/z2/6.mp3", text:"I love you too 💕" },
 
-    { who:"z1", audio:"audio/z1/9.mp3", text:"Once again , happy birthday my girl 💞👸🏻" }
+    { who:"z1", audio:"audio/z1/9.mp3", text:"Once again happy birthday my girl 💞👸🏻" }
   ];
 
   /* ================= TYPE SYNC WITH AUDIO ================= */
@@ -103,22 +105,42 @@ document.addEventListener("DOMContentLoaded", () => {
     const z1 = document.getElementById("z1");
     const z2 = document.getElementById("z2");
 
+    z1.innerHTML = "";
+    z2.innerHTML = "";
+    z1.style.opacity = 0;
+    z2.style.opacity = 0;
+
     let lastEl = null;
 
     for (const msg of conversation) {
       const el = msg.who === "z1" ? z1 : z2;
 
-      if (lastEl && lastEl !== el) {
-        fadeOut(lastEl);
-      }
+      if (lastEl && lastEl !== el) fadeOut(lastEl);
 
       await typeWithAudio(el, msg.text, msg.audio);
       lastEl = el;
 
-      // ⏱ gap between messages (1 second)
+      // ⏱ 1 second gap
       await new Promise(r => setTimeout(r, 1000));
     }
   }
 
-});
+  /* ================= REPLAY BUTTON ================= */
 
+  document.getElementById("replayBtn").addEventListener("click", () => {
+
+    // 🔊 play click sound
+    replayClickSound.currentTime = 0;
+    replayClickSound.play();
+
+    // stop all audios just in case
+    document.querySelectorAll("audio").forEach(a => {
+      a.pause();
+      a.currentTime = 0;
+    });
+
+    // restart conversation
+    startConversation();
+  });
+
+});
