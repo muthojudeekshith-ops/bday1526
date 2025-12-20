@@ -1,114 +1,124 @@
-/* ================= SCREEN FLOW ================= */
+document.addEventListener("DOMContentLoaded", () => {
 
-const screens = document.querySelectorAll(".screen");
+  /* ================= SCREEN FLOW ================= */
 
-function showScreen(id) {
-  screens.forEach(s => s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
+  const screens = document.querySelectorAll(".screen");
 
-document.getElementById("enterBtn").onclick = () => {
-  showScreen("screen2");
-};
-
-document.getElementById("passBtn").onclick = () => {
-  const pwd = document.getElementById("password").value;
-  if (pwd === "c5d9") {
-    showScreen("screen3");
-  } else {
-    alert("Wrong Password ❌");
+  function showScreen(id) {
+    screens.forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
   }
-};
 
-document.getElementById("warning").onclick = () => {
-  setTimeout(() => {
-    showScreen("screen4");
-    startConversation();
-  }, 3000);
-};
+  // Interface 1 → 2
+  document.getElementById("enterBtn").addEventListener("click", () => {
+    showScreen("screen2");
+  });
 
-/* ================= CONVERSATION (VOICE ↔ WORD SYNC) ================= */
+  // Interface 2 → 3
+  document.getElementById("passBtn").addEventListener("click", () => {
+    const pwd = document.getElementById("password").value;
+    if (pwd === "c5d9") {
+      showScreen("screen3");
+    } else {
+      alert("Wrong Password ❌");
+    }
+  });
 
-const conversation = [
-  { who:"z1", audio:"audio/z1/1.mp3",  text:"Hey pretty 👋🏻 .." },
-  { who:"z2", audio:"audio/z2/1.mp3",  text:"Hmm" },
+  // Interface 3 → 4
+  document.getElementById("warning").addEventListener("click", () => {
+    setTimeout(() => {
+      showScreen("screen4");
+      startConversation();
+    }, 3000);
+  });
 
-  { who:"z1", audio:"audio/z1/2.mp3",  text:"Happy Birthday my girl 👸🏻🐒💞  " },
-  { who:"z2", audio:"audio/z2/2.mp3",  text:"Thank you 🫶🏻💘☺️ " },
+  /* ================= CONVERSATION DATA ================= */
 
-  { who:"z1", audio:"audio/z1/3.mp3",  text:"hmmmm .. " },
-  { who:"z2", audio:"audio/z2/3.mp3",  text:"hmm, Will you stay with me,  until.." },
+  const conversation = [
+    { who:"z1", audio:"audio/z1/1.mp3", text:"Hey pretty 👋🏻 .." },
+    { who:"z2", audio:"audio/z2/1.mp3", text:"Hmm" },
 
-  { who:"z1", audio:"audio/z1/4.mp3",  text:"Until ..? 😏" },
-  { who:"z1", audio:"audio/z1/5.mp3",  text:"Listen baby girl , I am not going anywhere by leaving you" },
-  { who:"z1", audio:"audio/z1/6.mp3",  text:I'll stay withh you forever 💯" },
+    { who:"z1", audio:"audio/z1/2.mp3", text:"Happy Birthday my girl 👸🏻🐒💞" },
+    { who:"z2", audio:"audio/z2/2.mp3", text:"Thank you 🫶🏻💘☺️" },
 
-  { who:"z2", audio:"audio/z2/4.mp3",  text:"Really .. ?" },
+    { who:"z1", audio:"audio/z1/3.mp3", text:"hmmmm .." },
+    { who:"z2", audio:"audio/z2/3.mp3", text:"hmm, Will you stay with me, until.." },
 
-  { who:"z1", audio:"audio/z1/7.mp3",  text:"Yes it is my promise chitti 👸🏻🫳🏻" },
-  { who:"z2", audio:"audio/z2/5.mp3",  text:"..... " },
+    { who:"z1", audio:"audio/z1/4.mp3", text:"Until ..? 😏" },
+    { who:"z1", audio:"audio/z1/5.mp3", text:"Listen baby girl , I am not going anywhere by leaving you" },
+    { who:"z1", audio:"audio/z1/6.mp3", text:"I'll stay withh you forever 💯" },
 
-  { who:"z1", audio:"audio/z1/8.mp3",  text:"I love you chitti 💓🌹" },
-  { who:"z2", audio:"audio/z2/6.mp3",  text:"I love you too  💕 " },
+    { who:"z2", audio:"audio/z2/4.mp3", text:"Really .. ?" },
 
-  { who:"z1", audio:"audio/z1/9.mp3",  text:"Once again happy birthday my girl 💞👸🏻" }
-];
+    { who:"z1", audio:"audio/z1/7.mp3", text:"Yes it is my promise chitti 👸🏻🫳🏻" },
+    { who:"z2", audio:"audio/z2/5.mp3", text:"....." },
 
-/* ================= TYPE SYNC WITH AUDIO ================= */
+    { who:"z1", audio:"audio/z1/8.mp3", text:"I love you chitti 💓🌹" },
+    { who:"z2", audio:"audio/z2/6.mp3", text:"I love you too 💕" },
 
-function typeWithAudio(el, text, audioPath) {
-  el.innerHTML = "";
-  el.style.opacity = 1;
+    { who:"z1", audio:"audio/z1/9.mp3", text:"Once again happy birthday my girl 💞👸🏻" }
+  ];
 
-  const words = text.split(" ");
-  let index = 0;
+  /* ================= TYPE SYNC WITH AUDIO ================= */
 
-  return new Promise(resolve => {
+  function typeWithAudio(el, text, audioPath) {
+    el.innerHTML = "";
+    el.style.opacity = 1;
+
+    const words = text.split(" ");
+    let index = 0;
     const audio = new Audio(audioPath);
 
-    audio.onloadedmetadata = () => {
-      const totalDuration = audio.duration * 1000;
-      const delay = totalDuration / words.length;
+    return new Promise(resolve => {
+      audio.onloadedmetadata = () => {
+        const totalTime = audio.duration * 1000;
+        const delay = totalTime / words.length;
 
-      audio.play();
+        audio.play();
 
-      function typeNext() {
-        if (index >= words.length) {
-          resolve();
-          return;
+        function nextWord() {
+          if (index >= words.length) {
+            resolve();
+            return;
+          }
+
+          el.innerHTML += (index === 0 ? "" : " ") + words[index];
+          index++;
+
+          setTimeout(nextWord, delay);
         }
 
-        el.innerHTML += (index === 0 ? "" : " ") + words[index];
-        index++;
+        nextWord();
+      };
+    });
+  }
 
-        setTimeout(typeNext, delay);
+  function fadeOut(el) {
+    el.style.opacity = 0;
+  }
+
+  /* ================= SEQUENTIAL ENGINE ================= */
+
+  async function startConversation() {
+    const z1 = document.getElementById("z1");
+    const z2 = document.getElementById("z2");
+
+    let lastEl = null;
+
+    for (const msg of conversation) {
+      const el = msg.who === "z1" ? z1 : z2;
+
+      if (lastEl && lastEl !== el) {
+        fadeOut(lastEl);
       }
 
-      typeNext();
-    };
-  });
-}
+      await typeWithAudio(el, msg.text, msg.audio);
+      lastEl = el;
 
-function fadeOut(el) {
-  el.style.opacity = 0;
-}
-
-/* ================= SEQUENTIAL ENGINE ================= */
-
-async function startConversation() {
-  const z1 = document.getElementById("z1");
-  const z2 = document.getElementById("z2");
-
-  let lastEl = null;
-
-  for (const msg of conversation) {
-    const el = msg.who === "z1" ? z1 : z2;
-
-    if (lastEl && lastEl !== el) fadeOut(lastEl);
-
-    await typeWithAudio(el, msg.text, msg.audio);
-    lastEl = el;
-
-    await new Promise(r => setTimeout(r, 1000));
+      // ⏱ gap between messages (1 second)
+      await new Promise(r => setTimeout(r, 1000));
+    }
   }
-}
+
+});
+
