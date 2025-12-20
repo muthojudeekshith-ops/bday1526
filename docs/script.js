@@ -23,132 +23,75 @@ document.getElementById("passBtn").onclick = () => {
 document.getElementById("warning").onclick = () => {
   setTimeout(() => {
     showScreen("screen4");
-    initVoices();        // 🔥 VERY IMPORTANT
     startConversation();
   }, 3000);
 };
 
-/* ================= VOICES ================= */
+/* ================= CONVERSATION (VOICE ↔ WORD SYNC) ================= */
 
-let maleVoice = null;
-let femaleVoice = null;
+const conversation = [
+  { who:"z1", audio:"audio/z1/1.mp3",  text:"Hey pretty" },
+  { who:"z2", audio:"audio/z2/1.mp3",  text:"Hmm" },
 
-function initVoices() {
-  const voices = speechSynthesis.getVoices();
+  { who:"z1", audio:"audio/z1/2.mp3",  text:"Happy Birthday my girl" },
+  { who:"z2", audio:"audio/z2/2.mp3",  text:"Thank you" },
 
-  maleVoice =
-    voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("male")) ||
-    voices.find(v => v.lang.startsWith("en")) ||
-    voices[0];
+  { who:"z1", audio:"audio/z1/3.mp3",  text:"hmmmm" },
+  { who:"z2", audio:"audio/z2/3.mp3",  text:"Will you stay with me until" },
 
-  femaleVoice =
-    voices.find(v => v.lang.startsWith("en") && v.name.toLowerCase().includes("female")) ||
-    voices.find(v => v.lang.startsWith("en")) ||
-    voices[1];
-}
+  { who:"z1", audio:"audio/z1/4.mp3",  text:"Until" },
+  { who:"z1", audio:"audio/z1/5.mp3",  text:"Listen baby girl" },
+  { who:"z1", audio:"audio/z1/6.mp3",  text:"I am not going anywhere leaving you" },
 
-/* ================= TEXT CLEAN ================= */
+  { who:"z2", audio:"audio/z2/4.mp3",  text:"Really" },
 
-function cleanForVoice(text) {
-  return text
-    .replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "")
-    .replace(/[.,!?]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+  { who:"z1", audio:"audio/z1/7.mp3",  text:"Yes it is my promise chitti" },
+  { who:"z2", audio:"audio/z2/5.mp3",  text:"I trust you" },
 
-/* ================= WORD SPEAK ================= */
+  { who:"z1", audio:"audio/z1/8.mp3",  text:"I love you chitti" },
+  { who:"z2", audio:"audio/z2/6.mp3",  text:"I love you too" },
 
-function speakWord(word, gender) {
-  const clean = cleanForVoice(word);
-  if (!clean) return;
+  { who:"z1", audio:"audio/z1/9.mp3",  text:"Once again happy birthday my girl" }
+];
 
-  const utter = new SpeechSynthesisUtterance(clean);
+/* ================= TYPE SYNC WITH AUDIO ================= */
 
-  if (gender === "male") {
-    utter.voice = maleVoice;
-    utter.pitch = 0.82;   // breathy male
-    utter.rate  = 0.75;   // slow & deep
-  } else {
-    utter.voice = femaleVoice;
-    utter.pitch = 1.15;   // soft female
-    utter.rate  = 0.8;
-  }
-
-  utter.volume = 1;
-  speechSynthesis.speak(utter);
-}
-
-/* ================= TYPE + VOICE ================= */
-
-function getPause(word) {
-  if (word.includes("...")) return 2000; // dots
-  if (word.includes(","))  return 1000; // comma
-  return 420; // normal word speed
-}
-
-function typeText(el, text, gender) {
+function typeWithAudio(el, text, audioPath) {
   el.innerHTML = "";
   el.style.opacity = 1;
 
   const words = text.split(" ");
-  let i = 0;
+  let index = 0;
 
   return new Promise(resolve => {
-    function next() {
-      if (i >= words.length) {
-        resolve();
-        return;
+    const audio = new Audio(audioPath);
+
+    audio.onloadedmetadata = () => {
+      const totalDuration = audio.duration * 1000;
+      const delay = totalDuration / words.length;
+
+      audio.play();
+
+      function typeNext() {
+        if (index >= words.length) {
+          resolve();
+          return;
+        }
+
+        el.innerHTML += (index === 0 ? "" : " ") + words[index];
+        index++;
+
+        setTimeout(typeNext, delay);
       }
 
-      const word = words[i];
-      el.innerHTML += (i === 0 ? "" : " ") + word;
-
-      speakWord(word, gender);
-
-      const pause = getPause(word);
-      i++;
-      setTimeout(next, pause);
-    }
-    next();
+      typeNext();
+    };
   });
 }
 
 function fadeOut(el) {
   el.style.opacity = 0;
 }
-
-/* ================= CONVERSATION ================= */
-
-const conversation = [
-  { who: "z1", text: "Hey pretty 👋🏻 .." },
-  { who: "z2", text: "Hmm" },
-
-  { who: "z1", text: "Happy Birthday.. my girl 👸🏻🐒💞" },
-  { who: "z2", text: "hmm.. thank you u 🫶🏻💘☺️" },
-
-  { who: "z1", text: "hmmmm" },
-
-  { who: "z2", text: "hmm .. will you stay with me untill ..." },
-
-  { who: "z1", text: "untill ? .. " },
-
-  { who: "z1", text: "listen baby girl ,. .. im not going anywhere by leaving you" },
-
-  { who: "z1", text: "I will stay with you forever" },
-
-  { who: "z2", text: "really ?" },
-
-  { who: "z1", text: "Yeah .. its my promise chitti 👸🏻🫳🏻" },
-
-  { who: "z2", text: "....." },
-
-  { who: "z1", text: "I LOVE YOU .. CHITTI 💓🌹" },
-
-  { who: "z2", text: "I LOVE YOU TOO 💕" },
-
-  { who: "z1", text: "ONCE AGAIN .. HAPPY BIRTHDAY MY GIRL 💞👸🏻" }
-];
 
 /* ================= SEQUENTIAL ENGINE ================= */
 
@@ -160,13 +103,12 @@ async function startConversation() {
 
   for (const msg of conversation) {
     const el = msg.who === "z1" ? z1 : z2;
-    const gender = msg.who === "z1" ? "male" : "female";
 
     if (lastEl && lastEl !== el) fadeOut(lastEl);
 
-    await typeText(el, msg.text, gender);
+    await typeWithAudio(el, msg.text, msg.audio);
     lastEl = el;
 
-    await new Promise(r => setTimeout(r, 900));
+    await new Promise(r => setTimeout(r, 800));
   }
-  }
+}
