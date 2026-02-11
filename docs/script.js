@@ -1,5 +1,40 @@
 document.addEventListener("DOMContentLoaded", () => {
 
+  /* ================= TIMER LOGIC ================= */
+  const targetDate = new Date("April 15, 2026 00:00:00").getTime();
+  const timerElement = document.getElementById("timer");
+  
+  function updateTimer() {
+    const now = new Date().getTime();
+    const distance = targetDate - now;
+
+    if (distance <= 0) {
+      clearInterval(timerInterval);
+      showScreen("screen1");
+      return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+    timerElement.innerHTML = 
+      String(days).padStart(2, '0') + "d " + 
+      String(hours).padStart(2, '0') + "h " + 
+      String(minutes).padStart(2, '0') + "m " + 
+      String(seconds).padStart(2, '0') + "s";
+  }
+
+  const timerInterval = setInterval(updateTimer, 1000);
+  updateTimer();
+
+  // Load Galaxy Animation
+  const script = document.createElement('script');
+  script.type = 'module';
+  script.src = 'galaxy.js';
+  document.body.appendChild(script);
+
   /* ================= SCREEN FLOW ================= */
 
   const screens = document.querySelectorAll(".screen");

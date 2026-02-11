@@ -25,6 +25,36 @@ body {
   display: flex;
 }
 
+/* Interface 0: Timer */
+.webgl {
+  position: fixed;
+  top: 0;
+  left: 0;
+  outline: none;
+  z-index: -1;
+}
+
+.timer-container {
+  text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 30px;
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+  z-index: 10;
+}
+
+#timer {
+  font-size: 48px;
+  font-family: 'Courier New', Courier, monospace;
+  margin-bottom: 10px;
+}
+
+.unlock-msg {
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
 /* Interface 1 */
 .hearts span {
   font-size: 30px;
