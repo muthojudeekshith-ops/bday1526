@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
 
   /* ================= TIMER LOGIC ================= */
-  const targetDate = new Date("April 15, 2026 00:00:00").getTime();
+  const targetDate = new Date("January 15, 2026 00:00:00").getTime();
   const timerElement = document.getElementById("timer");
   
   function updateTimer() {
