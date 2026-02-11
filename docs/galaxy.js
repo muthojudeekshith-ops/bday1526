@@ -123,9 +123,18 @@ const tick = () =>
 {
     const elapsedTime = clock.getElapsedTime()
     controls.update()
-    camera.position.x = Math.cos(elapsedTime*0.05) * 3;
-    camera.position.z = Math.sin(elapsedTime*0.05) * 3;
-    camera.lookAt(0,0,0);
+    
+    // Smooth camera rotation
+    camera.position.x = Math.cos(elapsedTime * 0.15) * 4;
+    camera.position.z = Math.sin(elapsedTime * 0.15) * 4;
+    camera.position.y = Math.sin(elapsedTime * 0.1) * 2;
+    camera.lookAt(0, 0, 0);
+
+    // Subtle galaxy rotation
+    if (points) {
+        points.rotation.y = elapsedTime * 0.05;
+    }
+
     renderer.render(scene, camera)
     window.requestAnimationFrame(tick)
 }
